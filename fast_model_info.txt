@@ -1,0 +1,2 @@
+site https://rusvectores.org/ru/models/
+model_name = araneum_none_fasttextskipgram_300_5_2018.model
