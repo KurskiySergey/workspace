@@ -1,0 +1,4 @@
+1. clone git
+2. sudo apt-get install swig3.0
+3. sudo apt-get install python3-dev
+4. pip install -r requirements.txt
