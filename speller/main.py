@@ -54,9 +54,15 @@ class Main:
             return []
         elif len(candidates) == 1:
             # only one candidate
-            return list(candidates)
+
+            return [candidates[0][0]]
         else:
-            if word_info in candidates:
+            result = False
+            for candidate in candidates:
+                if word_info == candidate[0]:
+                    result = True
+                    break
+            if result:
                 # no mistakes
                 return [word_info]
             else:
@@ -67,13 +73,17 @@ class Main:
                     tail = name_info[next_index:]
                     tail.insert(0, first_name)
                 result = self.jam_corrector.fix_sentence(sentence=" ".join(tail))
-                if result != word_info and result in candidates:
+                find = False
+                for candidate in candidates:
+                    if result != word_info and candidate[0] == result:
+                        find = True
+                        break
+                if find:
                     # find and correct
                     return [result]
                 else:
                     candidates = self.name_analyzer(name_info, word, word_type, candidates=candidates)
                     return candidates
-
     @staticmethod
     def candidates_checker(letters, find_search_type, candidates):
         possible_candidates = []
@@ -84,12 +94,17 @@ class Main:
             info = candidate.split(" ")
             # find_word = info[find_search_type]
             for data in info:
-                # if data != find_word:
+                # if self.fasttext_corrector.find_similarity(origin=data, word=find_word) < SIMILARITY_VALUE:
                 if data.lower()[0] in clear_letters:
                     checked_letters.append(data.lower()[0])
                     clear_letters.remove(data.lower()[0])
             if len(checked_letters) == len(letters):
-                possible_candidates.append(candidate)
+                ordered = True
+                for i in range(len(checked_letters)):
+                    if checked_letters[i] != letters[i]:
+                        ordered = False
+                if ordered:
+                    possible_candidates.append(candidate)
         return possible_candidates
 
     def name_analyzer(self, name_info, search_word, search_word_type, candidates):
@@ -100,29 +115,31 @@ class Main:
             word_type = 1
         else:
             word_type = 2
-
+        candidates_types = {}
         for i, candidate in enumerate(candidates):
-            candidate = candidate.split(" ")
-            candidate.pop(word_type)
-            candidate = " ".join(candidate)
+            candidate_names = candidate[0].split(" ")
+            cand_type = candidate_names.index(candidate[1])
+            candidate_names.pop(cand_type)
+            candidate = " ".join(candidate_names)
+            candidates_types[candidate] = [candidates[i].copy(), cand_type]
             candidates[i] = candidate
 
         if len(name_info) == 2:
             data = name_info[-1]
-            if data == search_word:
+            if self.fasttext_corrector.find_similarity(origin=data, word=search_word) >= SIMILARITY_VALUE:
                 data = name_info[0]
 
             if len(data) == 2:
                 # has 2 optional letters
                 first_letter = data[0].lower()
                 second_letter = data[1].lower()
-                checked_candidates = Main.candidates_checker(letters=[first_letter, second_letter],
+                checked_candidates = self.candidates_checker(letters=[first_letter, second_letter],
                                                              find_search_type=word_type, candidates=candidates)
 
             elif len(data) == 1:
                 # has 1 optional letter
                 letter = data.lower()
-                checked_candidates = Main.candidates_checker(letters=[letter],
+                checked_candidates = self.candidates_checker(letters=[letter],
                                                              find_search_type=word_type, candidates=candidates)
             else:
                 checked_candidates = [self.fasttext_corrector.find_most_similar(origin=data, words=candidates)]
@@ -130,7 +147,7 @@ class Main:
             # print(f"checked candidates: {checked_candidates}")
 
         elif len(name_info) > 2:
-            if name_info[0] == search_word:
+            if self.fasttext_corrector.find_similarity(origin=name_info[0], word=search_word) >= SIMILARITY_VALUE:
                 data = name_info[1:]
             else:
                 data = name_info[:-1]
@@ -165,15 +182,16 @@ class Main:
             checked_candidates = candidates
 
         for i, candidate in enumerate(checked_candidates):
+            candidate_info = candidates_types.get(candidate)
             candidate = candidate.split(" ")
-            candidate.insert(word_type, search_word)
-            candidate = " ".join(candidate)
-            checked_candidates[i] = candidate
+            candidate = candidate_info[0]
+            # candidate = " ".join(candidate)
+            checked_candidates[i] = candidate[0]
 
         return checked_candidates
 
-    def find_candidates(self, word, word_type):
-        candidates = set()
+    def find_candidates(self, word, word_type, no_name=False):
+        candidates = []
         if word_type == "surname":
             word_type = 0
         elif word_type == "name":
@@ -183,9 +201,16 @@ class Main:
 
         for info in self.check_info:
             name_info = info.rstrip().split(" ")
+            # if info == "Алдонина Анна Александровна":
+            #     input()
             if len(name_info) >= 3:
-                if self.fasttext_corrector.find_similarity(origin=word, word=name_info[word_type]) >= SIMILARITY_VALUE:
-                    candidates.add(info)
+                for name in name_info:
+                    if self.fasttext_corrector.find_similarity(origin=word, word=name) >= SIMILARITY_VALUE:
+                        if no_name:
+                            candidates.append(info)
+                        else:
+                            candidates.append([info, name])
+                        break
 
         return list(candidates)
 
@@ -204,9 +229,21 @@ class Main:
     def cross_similarity_check(self, result_info):
         for key, value in result_info.items():
             if len(value) == 1:
-                similarity = round(self.fasttext_corrector.find_similarity(origin=key, word=value[0]),2)
-                value[0] += f" {similarity}"
-                result_info.update({key: value})
+                data = value[0].split(" ")
+                surname = data[0]
+                surname_similarity = self.fasttext_corrector.find_most_similar(origin=surname, words=key.split(" "),
+                                                                               get_similarity=True)
+                similarity = round(self.fasttext_corrector.find_similarity(origin=key, word=value[0]), 2)
+                avr_similarity = []
+                for dt in data:
+                    avr_similarity.append(self.fasttext_corrector.find_most_similar(origin=dt, words=key.split(" "),
+                                                                                    get_similarity=True))
+                avr_similarity = sum(avr_similarity) / len(avr_similarity)
+                total_similarity = (avr_similarity) / 1
+                value[0] += f"similarity{total_similarity}"
+                result_info.update({key: [value, avr_similarity]})
+            else:
+                result_info.update({key: [value, 0]})
         return result_info
 
     def start(self):
@@ -221,7 +258,7 @@ class Main:
                 total = []
                 result = self.jam_corrector.fix_sentence(sentence=data)
                 surname_info = result.split(" ")[0]
-                if result != info and result in self.find_candidates(surname_info, word_type="surname"):
+                if result != info and result in self.find_candidates(surname_info, word_type="surname", no_name=True):
                     # find and correct
                     total.append(", ".join([result]))
                 else:
