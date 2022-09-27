@@ -9,8 +9,9 @@ EXCEL_ORIGIN_FILENAME = "/home/kurskiysv/PycharmProjects/WorkSpace/Книга2.x
 EXCEL_RESULT_FILENAME = "/home/kurskiysv/PycharmProjects/WorkSpace/Книга2.xlsx"
 
 CHECK_DATA_INFO = ("F", "Лист1 (2)", 3, 346)  # column id, start row, end row
-REAL_DATA_INFO = ("A", "Лист1 (2)", 189, 190)  # column id, start row, end row
-OUTPUT_DATA_INFO = ("B", "Лист1 (2)", 189, 190)  # column id, start row, end row
+REAL_DATA_INFO = ("A", "Лист1 (2)", 3, 316)  # column id, start row, end row
+OUTPUT_DATA_INFO = ("B", "Лист1 (2)", 3, 316)  # column id, start row, end row
+
 
 ERROR_COLOR = "FFFF00"
 WARN_COLOR = "FFA500"
@@ -25,3 +26,4 @@ JAMSPELL_MODEL_FULL = os.path.join(JAMSPELL_DIR, JAMSPELL_MODEL)
 
 SIMILARITY_VALUE = 0.6
 OUTPUT_SIMILARITY = 0.5
+
