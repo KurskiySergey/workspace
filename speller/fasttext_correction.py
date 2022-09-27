@@ -17,11 +17,13 @@ class FastTextCorrector:
         title_similarity = self.model.similarity(origin.title(), word)
         return max([lower_similarity, title_similarity])
 
-    def find_most_similar(self, origin, words=None):
+    def find_most_similar(self, origin, words=None, get_similarity=False):
         if words is None:
             words = self.words
         word_similarity = {word: self.find_similarity(origin, word) for word in words}
         most_similar = max(word_similarity.items(), key=lambda x: x[-1])[0]
+        if get_similarity:
+            return word_similarity.get(most_similar)
         return most_similar
 
     def split_names(self, real_info):

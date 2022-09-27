@@ -204,9 +204,21 @@ class Main:
     def cross_similarity_check(self, result_info):
         for key, value in result_info.items():
             if len(value) == 1:
-                similarity = round(self.fasttext_corrector.find_similarity(origin=key, word=value[0]),2)
-                value[0] += f" {similarity}"
-                result_info.update({key: value})
+                data = value[0].split(" ")
+                surname = data[0]
+                surname_similarity = self.fasttext_corrector.find_most_similar(origin=surname, words=key.split(" "),
+                                                                               get_similarity=True)
+                similarity = round(self.fasttext_corrector.find_similarity(origin=key, word=value[0]), 2)
+                avr_similarity = []
+                for dt in data:
+                    avr_similarity.append(self.fasttext_corrector.find_most_similar(origin=dt, words=key.split(" "),
+                                                                                    get_similarity=True))
+                avr_similarity = sum(avr_similarity) / len(avr_similarity)
+                total_similarity = (avr_similarity) / 1
+                value[0] += f"similarity{total_similarity}"
+                result_info.update({key: [value, avr_similarity]})
+            else:
+                result_info.update({key: [value, 0]})
         return result_info
 
     def start(self):
