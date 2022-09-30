@@ -45,7 +45,8 @@ class MainWindow(QWidget):
     def chooseInitFile(self):
         dialog = QFileDialog()
         filename = dialog.getOpenFileName(
-            initialFilter="Excel File (*.xlsx, *.xls)"
+            initialFilter="Excel File (*.xlsx, *.xls)",
+            options=QFileDialog.DontUseNativeDialog
         )
 
         self.left_init_name.setText(filename[0])
@@ -54,7 +55,8 @@ class MainWindow(QWidget):
     def chooseOutputFile(self):
         dialog = QFileDialog()
         filename = dialog.getOpenFileName(
-            initialFilter="Excel File (*.xlsx, *.xls)"
+            initialFilter="Excel File (*.xlsx, *.xls)",
+            options=QFileDialog.DontUseNativeDialog
         )
         self.left_output_name.setText(filename[0])
 

@@ -269,7 +269,7 @@ class Main:
                     total.append(", ".join(result))
             result_info[info] = total
         result_info = self.cross_similarity_check(result_info)
-        print(result_info)
+        # print(result_info)
         self.save_result(info=result_info)
 
 
