@@ -249,6 +249,8 @@ class Main:
     def start(self):
         self.convert_data_info()
         self.read_excel_data()
+        self.jam_corrector.train_model(clear_data=self.check_info)
+        self.jam_corrector.load_model()
         self.fasttext_corrector.split_names(self.check_info)
         result_info = {}
         for info in self.real_info:
