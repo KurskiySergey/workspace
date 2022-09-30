@@ -12,3 +12,4 @@ PyQt5-sip==12.11.0
 scipy==1.9.1
 six==1.16.0
 smart-open==6.2.0
+progress==1.6
