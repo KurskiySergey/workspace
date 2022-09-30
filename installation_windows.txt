@@ -1,0 +1,7 @@
+1. install swig https://www.swig.org/download.html
+All realeases -> download latest ( < 4.0 )
+2. unzip and move to C disk
+3. add to enviroment path
+reopen pycharm or another ide or command line
+4. instead of PyQt install pyqt5-tools
+5. install right versions of numpy and scipy
