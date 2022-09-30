@@ -124,25 +124,32 @@ class MainWindow(QWidget):
         start_layout.addLayout(right_layout)
 
     def set_config(self):
+        print("setting config")
         from config import set_qt_params
         check_rows = self.right_check_list_row.text().split(":")
         real_rows = self.right_real_row.text().split(":")
         out_rows = self.right_out_list_row.text().split(":")
-        params = {
-            "EXCEL_RESULT_FILENAME": self.left_output_name.text(),
-            "EXCEL_ORIGIN_FILENAME": self.left_init_name.text(),
-            "OUTPUT_SIMILARITY": float(self.similarity_value.value()),
-            "CHECK_DATA_INFO": (self.right_check_list_column.text().upper(), self.right_check_list_name.text(), int(check_rows[0].rstrip()), int(check_rows[1].rstrip())),
-            "REAL_DATA_INFO": (self.right_real_list_column.text().upper(), self.right_real_list_name.text(), int(real_rows[0].rstrip()), int(real_rows[1].rstrip())),
-            "OUTPUT_DATA_INFO": (self.right_out_list_column.text().upper(), self.right_out_list_name.text(), int(out_rows[0].rstrip()), int(out_rows[1].rstrip()))
-        }
-        set_qt_params(params=params)
+        if self.left_init_name.text() != "":
+            params = {
+                "EXCEL_RESULT_FILENAME": self.left_output_name.text().encode("utf-8"),
+                "EXCEL_ORIGIN_FILENAME": self.left_init_name.text().encode("utf-8"),
+                "OUTPUT_SIMILARITY": float(self.similarity_value.value()),
+                "CHECK_DATA_INFO": (self.right_check_list_column.text().encode("utf-8").upper(), self.right_check_list_name.text().encode("utf-8"), int(check_rows[0].rstrip()), int(check_rows[1].rstrip())),
+                "REAL_DATA_INFO": (self.right_real_list_column.text().encode("utf-8").upper(), self.right_real_list_name.text().encode("utf-8"), int(real_rows[0].rstrip()), int(real_rows[1].rstrip())),
+                "OUTPUT_DATA_INFO": (self.right_out_list_column.text().encode("utf-8").upper(), self.right_out_list_name.text().encode("utf-8"), int(out_rows[0].rstrip()), int(out_rows[1].rstrip()))
+            }
+            set_qt_params(params=params)
+        print("done")
 
     def launch_speller(self):
         self.set_config()
+        print("initializing object...")
         from main import Main
         speller = Main()
+        print("done")
+        print("starting...")
         speller.start()
+        print("finished")
         result = QDialog(parent=self)
         result.setWindowTitle("Excel names transformer")
         result_btn = QPushButton("ОК")

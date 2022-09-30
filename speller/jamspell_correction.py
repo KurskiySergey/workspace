@@ -37,7 +37,7 @@ class JamSpell:
 
         clear_data = "\n".join(clear_data) + "\n" + "\n".join(n_gramms) + "\n" + "\n".join(double_splitted)
         # clear_data = "\n".join(clear_data)
-        with open(JAMSPELL_MODEL_TRAIN, "w") as text:
+        with open(JAMSPELL_MODEL_TRAIN, "w", encoding="utf-8") as text:
             text.write(clear_data)
 
     def train_model(self, clear_data):

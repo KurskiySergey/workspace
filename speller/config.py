@@ -7,8 +7,8 @@ JAMSPELL_MODEL = "my_model_2.bin"
 ALPHABET = "alphabet_ru.txt"
 TRAIN_DATA_FILENAME = "train.txt"
 
-EXCEL_ORIGIN_FILENAME = "/home/kurskiysv/PycharmProjects/WorkSpace/Книга2.xlsx"
-EXCEL_RESULT_FILENAME = "/home/kurskiysv/PycharmProjects/WorkSpace/Книга2.xlsx"
+EXCEL_ORIGIN_FILENAME = "D:\PycharmProjects\WorkSpace\Книга2.xlsx"
+EXCEL_RESULT_FILENAME = "D:\PycharmProjects\WorkSpace\Книга2.xlsx"
 
 CHECK_DATA_INFO = ("F", "Лист1 (2)", 3, 346)  # column id, start row, end row
 REAL_DATA_INFO = ("A", "Лист1 (2)", 3, 316)  # column id, start row, end row

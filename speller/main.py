@@ -2,6 +2,7 @@ from config import EXCEL_ORIGIN_FILENAME, EXCEL_RESULT_FILENAME, SIMILARITY_VALU
 from excel_reader import ExcelWorker
 from jamspell_correction import JamSpell
 from fasttext_correction import FastTextCorrector
+from progress.bar import IncrementalBar
 
 
 class Main:
@@ -247,13 +248,25 @@ class Main:
         return result_info
 
     def start(self):
+        print("converting...")
         self.convert_data_info()
+        print("done")
+        print("reading data...")
         self.read_excel_data()
+        print("done")
+        print("training...")
         self.jam_corrector.train_model(clear_data=self.check_info)
+        print("done")
+        print("loading...")
         self.jam_corrector.load_model()
+        print("done")
+        print("checking...")
+        bar = IncrementalBar('Progress', max=100)
         self.fasttext_corrector.split_names(self.check_info)
         result_info = {}
-        for info in self.real_info:
+        prev_index = 0
+        bar.start()
+        for i, info in enumerate(self.real_info):
             info = info.replace(chr(235), "е")
             origin_info = info.split(" и ")
             for data in origin_info:
@@ -268,9 +281,18 @@ class Main:
                     # print(result)
                     total.append(", ".join(result))
             result_info[info] = total
+            if i // (len(self.real_info) / 100) > prev_index:
+                prev_index = i // (len(self.real_info) / 100)
+                bar.next()
+        bar.finish()
+        print("done")
+        print("cross check...")
         result_info = self.cross_similarity_check(result_info)
         # print(result_info)
+        print("done")
+        print("saving...")
         self.save_result(info=result_info)
+        print("done")
 
 
 if __name__ == "__main__":
