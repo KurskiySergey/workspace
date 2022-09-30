@@ -1,0 +1,15 @@
+et-xmlfile==1.1.0
+gensim==3.8.3
+jamspell==0.0.12
+lml==0.1.0
+numpy==1.23.3
+openpyxl==3.0.10
+pyexcel-io==0.6.6
+pyexcel-xlsx==0.6.0
+PyQt5==5.15.7
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.11.0
+scipy==1.9.1
+six==1.16.0
+smart-open==6.2.0
+progress==1.6
