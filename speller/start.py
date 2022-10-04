@@ -7,6 +7,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setGeometry(50, 50, 700, 200)
+        self.model_dir = QLineEdit()
         self.setWindowTitle("Excel names transformer")
         self.left_init_name = QLineEdit()
         self.left_output_name = QLineEdit()
@@ -60,29 +61,44 @@ class MainWindow(QWidget):
         )
         self.left_output_name.setText(filename[0])
 
+    def chooseDirectory(self):
+        dialog = QFileDialog()
+        dirname = dialog.getExistingDirectory(
+            options=QFileDialog.DontUseNativeDialog
+        )
+        self.model_dir.setText(dirname)
+
     def set_left_side(self, start_layout):
         left_layout = QVBoxLayout()
 
         init_layout = QHBoxLayout()
         output_layout = QHBoxLayout()
+        models_layout = QHBoxLayout()
         left_init_label = QLabel("Исходный файл")
         left_output_label = QLabel("Выходной файл")
+        left_models_label = QLabel("Путь к папке с моделями")
 
         init_push_button = QPushButton("Выбрать")
         output_push_button = QPushButton("Выбрать")
+        models_btn = QPushButton("Выбрать")
 
         left_layout.addWidget(left_init_label)
         left_layout.addLayout(init_layout)
         left_layout.addWidget(left_output_label)
         left_layout.addLayout(output_layout)
+        left_layout.addWidget(left_models_label)
+        left_layout.addLayout(models_layout)
 
         init_layout.addWidget(self.left_init_name)
         init_layout.addWidget(init_push_button)
         output_layout.addWidget(self.left_output_name)
         output_layout.addWidget(output_push_button)
+        models_layout.addWidget(self.model_dir)
+        models_layout.addWidget(models_btn)
 
         init_push_button.clicked.connect(self.chooseInitFile)
         output_push_button.clicked.connect(self.chooseOutputFile)
+        models_btn.clicked.connect(self.chooseDirectory)
 
         start_layout.addLayout(left_layout)
 
@@ -125,20 +141,24 @@ class MainWindow(QWidget):
 
     def set_config(self):
         print("setting config")
-        from config import set_qt_params
+        from config import set_qt_params, set_base_dir
         check_rows = self.right_check_list_row.text().split(":")
         real_rows = self.right_real_row.text().split(":")
         out_rows = self.right_out_list_row.text().split(":")
         if self.left_init_name.text() != "":
             params = {
-                "EXCEL_RESULT_FILENAME": self.left_output_name.text().encode("utf-8"),
-                "EXCEL_ORIGIN_FILENAME": self.left_init_name.text().encode("utf-8"),
+                "EXCEL_RESULT_FILENAME": self.left_output_name.text(),
+                "EXCEL_ORIGIN_FILENAME": self.left_init_name.text(),
                 "OUTPUT_SIMILARITY": float(self.similarity_value.value()),
-                "CHECK_DATA_INFO": (self.right_check_list_column.text().encode("utf-8").upper(), self.right_check_list_name.text().encode("utf-8"), int(check_rows[0].rstrip()), int(check_rows[1].rstrip())),
-                "REAL_DATA_INFO": (self.right_real_list_column.text().encode("utf-8").upper(), self.right_real_list_name.text().encode("utf-8"), int(real_rows[0].rstrip()), int(real_rows[1].rstrip())),
-                "OUTPUT_DATA_INFO": (self.right_out_list_column.text().encode("utf-8").upper(), self.right_out_list_name.text().encode("utf-8"), int(out_rows[0].rstrip()), int(out_rows[1].rstrip()))
+                "CHECK_DATA_INFO": (self.right_check_list_column.text().upper(), self.right_check_list_name.text(), int(check_rows[0].rstrip()), int(check_rows[1].rstrip())+1),
+                "REAL_DATA_INFO": (self.right_real_list_column.text().upper(), self.right_real_list_name.text(), int(real_rows[0].rstrip()), int(real_rows[1].rstrip())+1),
+                "OUTPUT_DATA_INFO": (self.right_out_list_column.text().upper(), self.right_out_list_name.text(), int(out_rows[0].rstrip()), int(out_rows[1].rstrip())+1)
             }
             set_qt_params(params=params)
+            if self.model_dir.text() != "":
+                set_base_dir(self.model_dir.text())
+        elif self.model_dir.text() != "":
+            set_base_dir(self.model_dir.text())
         print("done")
 
     def launch_speller(self):
